@@ -81,6 +81,18 @@ impl ActivityData {
     }
 }
 
+/// 「Слушать」按钮链接：SoundCloud 搜索（无需账号即可完整试听）
+/// Link for the "Слушать" button: a SoundCloud search for "artist title",
+/// which plays tracks in full without an account (unlike Deezer previews).
+fn listen_url(artist: &str, title: &str) -> String {
+    let query = format!("{artist} {title}");
+    url::Url::parse_with_params(
+        "https://soundcloud.com/search/sounds",
+        &[("q", query.trim())],
+    )
+    .map_or_else(|_| "https://soundcloud.com".to_string(), String::from)
+}
+
 struct Worker {
     client: Option<DiscordIpcClient>,
     data: Option<ActivityData>,
@@ -232,7 +244,9 @@ impl Worker {
             .small_image(ICON_KEY)
             .small_text("SPlayer");
 
-        let buttons = vec![Button::new("SPlayer", "https://github.com/imsyy/SPlayer")];
+        let artist_text = data.meta.artist_text();
+        let listen_url = listen_url(&artist_text, &data.meta.title);
+        let buttons = vec![Button::new("Слушать", &listen_url)];
 
         let status_type = match display_mode {
             DiscordDisplayMode::Name => StatusDisplayType::Name,
@@ -240,7 +254,6 @@ impl Worker {
             DiscordDisplayMode::Details => StatusDisplayType::Details,
         };
 
-        let artist_text = data.meta.artist_text();
         let mut activity = Activity::new()
             .details(&data.meta.title)
             .state(&artist_text)
@@ -424,6 +437,14 @@ pub fn update_timeline(p: TimelineParam) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn listen_url_encodes_query() {
+        assert_eq!(
+            listen_url("CUPSIZE", "вайфуу"),
+            "https://soundcloud.com/search/sounds?q=CUPSIZE+%D0%B2%D0%B0%D0%B9%D1%84%D1%83%D1%83"
+        );
+    }
 
     #[test]
     fn shutdown_joins_thread_and_allows_restart() {
