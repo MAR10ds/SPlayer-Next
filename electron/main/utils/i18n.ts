@@ -19,6 +19,7 @@ interface MainMessages {
   closeTaskbarLyric: string;
   loginNetease: string;
   quit: string;
+  discordListen: string;
 }
 
 const messages: Record<LocaleCode, MainMessages> = {
@@ -41,6 +42,7 @@ const messages: Record<LocaleCode, MainMessages> = {
     closeTaskbarLyric: "关闭任务栏歌词",
     loginNetease: "登录 NCM",
     quit: "退出",
+    discordListen: "收听",
   },
   "en-US": {
     prev: "Previous",
@@ -61,6 +63,7 @@ const messages: Record<LocaleCode, MainMessages> = {
     closeTaskbarLyric: "Close Taskbar Lyric",
     loginNetease: "Log in to NCM",
     quit: "Quit",
+    discordListen: "Listen",
   },
 };
 

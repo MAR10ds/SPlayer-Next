@@ -10,6 +10,8 @@ export declare function disableDiscord(): void
 export interface DiscordConfig {
   showWhenPaused: boolean
   displayMode?: DiscordDisplayMode
+  /** Localised label of the "Listen" button */
+  listenLabel?: string
 }
 
 /** Discord 显示模式 */

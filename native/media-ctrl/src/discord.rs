@@ -21,6 +21,8 @@ use crate::model::{
 
 const APP_ID: &str = "1454403710162698293";
 const ICON_KEY: &str = "logo-icon";
+/// Fallback button label until the main process sends a localised one
+const DEFAULT_LISTEN_LABEL: &str = "Listen";
 const TIMESTAMP_THRESHOLD_MS: i64 = 100;
 const RECONNECT_COOLDOWN: Duration = Duration::from_secs(5);
 
@@ -81,8 +83,8 @@ impl ActivityData {
     }
 }
 
-/// 「Слушать」按钮链接：SoundCloud 搜索（无需账号即可完整试听）
-/// Link for the "Слушать" button: a SoundCloud search for "artist title",
+/// 「收听」按钮链接：SoundCloud 搜索（无需账号即可完整试听）
+/// Link for the "Listen" button: a SoundCloud search for "artist title",
 /// which plays tracks in full without an account (unlike Deezer previews).
 fn listen_url(artist: &str, title: &str) -> String {
     let query = format!("{artist} {title}");
@@ -101,6 +103,8 @@ struct Worker {
     last_end_ts: Option<i64>,
     show_paused: bool,
     display_mode: DiscordDisplayMode,
+    /// 「收听」按钮文字（由主进程按当前语言传入）
+    listen_label: String,
     /// 元数据/状态/配置变更后置位，保证无时长曲目（电台/流）也至少发送一次 activity
     dirty: bool,
 }
@@ -115,6 +119,7 @@ impl Default for Worker {
             last_end_ts: None,
             show_paused: false,
             display_mode: DiscordDisplayMode::Name,
+            listen_label: DEFAULT_LISTEN_LABEL.to_string(),
             dirty: false,
         }
     }
@@ -135,6 +140,9 @@ impl Worker {
                 self.show_paused = c.show_when_paused;
                 if let Some(m) = c.display_mode {
                     self.display_mode = m;
+                }
+                if let Some(label) = c.listen_label.filter(|l| !l.trim().is_empty()) {
+                    self.listen_label = label;
                 }
                 self.last_end_ts = None;
                 self.dirty = true;
@@ -224,6 +232,7 @@ impl Worker {
                 &mut self.dirty,
                 self.show_paused,
                 self.display_mode,
+                &self.listen_label,
             ) {
                 self.disconnect();
             }
@@ -237,6 +246,7 @@ impl Worker {
         dirty: &mut bool,
         show_paused: bool,
         display_mode: DiscordDisplayMode,
+        listen_label: &str,
     ) -> bool {
         let assets = Assets::new()
             .large_image(&data.cover_url)
@@ -246,7 +256,7 @@ impl Worker {
 
         let artist_text = data.meta.artist_text();
         let listen_url = listen_url(&artist_text, &data.meta.title);
-        let buttons = vec![Button::new("Слушать", &listen_url)];
+        let buttons = vec![Button::new(listen_label, &listen_url)];
 
         let status_type = match display_mode {
             DiscordDisplayMode::Name => StatusDisplayType::Name,

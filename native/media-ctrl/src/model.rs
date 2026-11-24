@@ -199,4 +199,6 @@ pub enum DiscordDisplayMode {
 pub struct DiscordConfig {
     pub show_when_paused: bool,
     pub display_mode: Option<DiscordDisplayMode>,
+    /// Localised label of the "Listen" button
+    pub listen_label: Option<String>,
 }

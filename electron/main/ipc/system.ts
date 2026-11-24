@@ -9,6 +9,7 @@ import { setLocale } from "@main/utils/i18n";
 import { systemLog } from "@main/utils/logger";
 import { refreshTray } from "@main/services/tray";
 import { getThumbar } from "@main/services/thumbar";
+import { reloadDiscordConfig } from "@main/services/media";
 import { getMainWindow, focusMainWindow } from "@main/window";
 import { fetchBytes } from "@main/utils/fetchBytes";
 import { logsDir } from "@main/utils/paths";
@@ -74,6 +75,7 @@ export const registerSystemIpc = (): void => {
     if (setLocale(locale)) {
       refreshTray();
       getThumbar()?.refreshLocale();
+      reloadDiscordConfig();
     }
   });
 

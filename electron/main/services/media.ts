@@ -1,6 +1,7 @@
 import { loadNativeModule } from "@main/utils/nativeLoader";
 import { mediaLog, nativeLogsDir } from "@main/utils/logger";
 import { isDev } from "@main/utils/config";
+import { t } from "@main/utils/i18n";
 import { store } from "@main/store";
 import type {
   MediaEvent,
@@ -44,6 +45,7 @@ const applyDiscordConfig = (discord?: DiscordSettings): void => {
   mc.setDiscordConfig({
     showWhenPaused: discord.showWhenPaused,
     displayMode: DISCORD_MODE_MAP[discord.displayMode],
+    listenLabel: t("discordListen"),
   });
 };
 
